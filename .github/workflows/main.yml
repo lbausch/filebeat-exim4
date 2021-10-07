@@ -1,0 +1,52 @@
+---
+name: Unit Tests
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 9 * * *'
+
+jobs:
+  tests:
+    env:
+      ES_HOST: http://elasticsearch:9200
+
+    strategy:
+      fail-fast: true
+      matrix:
+        version:
+          - 7.7.1
+          - 7.8.1
+          - 7.9.3
+          - 7.10.2
+          - 7.11.2
+          - 7.12.1
+          - 7.13.2
+          - 7.14.2
+          - 7.15.0
+
+    runs-on: ubuntu-latest
+    container: python:3.10-bullseye
+
+    services:
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:${{ matrix.version }}
+        ports:
+          - 9200:9200
+        env:
+          discovery.type: single-node
+        options: --health-cmd "nc localhost 9200" --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: Check Cluster Status
+        run: |
+          curl --silent ${{ env.ES_HOST }}
+          curl --silent ${{ env.ES_HOST }}/_cat/health
+
+      - name: Check Out Repository Code
+        uses: actions/checkout@v2
+
+      - name: Run Unit Tests
+        working-directory: tests
+        run: python RejectPipeline.py --failfast --verbose
