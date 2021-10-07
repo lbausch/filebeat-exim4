@@ -1,13 +1,24 @@
 import json
 import unittest
 import os
-from urllib import request, parse
+from urllib import request
+
 
 class BaseTestCase(unittest.TestCase):
 
     @property
     def pipeline_file(self):
         pass
+
+    def assertSourceEqual(self, source, value, nested_key):
+        keys = nested_key.split('.')
+
+        for key in keys:
+            self.assertIn(key, source)
+
+            source = source[key]
+
+        self.assertEqual(value, source)
 
     def read_pipeline_file(self):
         with open(self.pipeline_file, 'r') as file:
@@ -27,7 +38,7 @@ class BaseTestCase(unittest.TestCase):
                 '_index': 'index',
                 '_type': '_doc',
                 '_id': 'id',
-                '_source' : {
+                '_source': {
                     'message': message,
                 },
             },
@@ -36,7 +47,8 @@ class BaseTestCase(unittest.TestCase):
 
         data = json.dumps(body)
 
-        req =  request.Request(os.getenv('ES_HOST', 'http://localhost:9200') + '/_ingest/pipeline/_simulate',
+        req = request.Request(
+            '%s/_ingest/pipeline/_simulate' % os.getenv('ES_HOST', 'http://localhost:9200'),
             data=data.encode('utf-8'),
             method='POST',
             headers={

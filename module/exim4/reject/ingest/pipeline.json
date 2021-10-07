@@ -1,6 +1,63 @@
 {
   "description": "Pipeline for parsing Exim 4 reject logs",
   "processors": [
+    {
+      "grok": {
+        "field": "message",
+        "patterns": [
+          "%{EXIM4_REJECT_LOG_LINE}"
+        ],
+        "pattern_definitions": {
+          "EXIM4_REJECT_LOG_LINE": "^%{EXIM4_DATETIME_TIMEZONE}( %{EXIM4_MESSAGE_ID:exim4.id})?(%{SPACE}%{EXIM4_REJECT_FIELD})*( %{EXIM4_RECIPIENT_ADDRESS})? %{GREEDYDATA:exim4.message}",
+
+          "EXIM4_DATETIME_TIMEZONE": "%{YEAR}-%{MONTHNUM}-%{MONTHDAY} %{HOUR}:%{MINUTE}:%{SECOND}( [+-]\\d{4})?",
+
+          "EXIM4_MESSAGE_ID": "[0-9a-zA-Z]{6}-[0-9a-zA-Z]{6}-[0-9a-zA-Z]{2}",
+
+          "EXIM4_REJECT_FIELD": "%{EXIM4_REMOTEHOST}|%{EXIM4_SENDER_ADDRESS}|%{EXIM4_TLS_CIPHER_SUITE}|%{EXIM4_CV}",
+
+          "EXIM4_REMOTEHOST": "H=\\(?\\[?%{IPORHOST:exim4.remote_host}?\\]?\\)?(%{SPACE}\\(\\[?%{IPORHOST:exim4.helo_name}\\]?\\))? \\[%{IP:exim4.remote_addr}\\](:%{POSINT:exim4.remote_addr_port})?",
+          "EXIM4_SENDER_ADDRESS": "F=<%{NOTSPACE:exim4.sender_address}>",
+          "EXIM4_TLS_CIPHER_SUITE": "X=%{NOTSPACE:exim4.tls.cipher_suite}",
+          "EXIM4_CV": "CV=%{WORD:exim4.tls.cert_verification_status}",
+
+          "EXIM4_RECIPIENT_ADDRESS": "(temporarily )?rejected RCPT <%{NOTSPACE:exim4.recipient_address}>:"
+        }
+      }
+    },
+    {
+      "rename": {
+        "field": "message",
+        "target_field": "exim4.message_raw"
+      }
+    },
+    {
+      "set": {
+        "field": "exim4.timezone",
+        "value": "UTC",
+        "override": false
+      }
+    },
+    {
+      "date": {
+        "field": "exim4.datetime",
+        "target_field": "@timestamp",
+        "timezone": "{{ exim4.timezone }}",
+        "formats": [
+          "uuuu-MM-dd HH:mm:ss"
+        ]
+      }
+    },
+    {
+      "remove": {
+        "field": "exim4.datetime"
+      }
+    },
+    {
+      "remove": {
+        "field": "exim4.timezone"
+      }
+    }
   ],
   "on_failure" : [{
     "set" : {
