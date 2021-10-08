@@ -1,6 +1,7 @@
 import json
 import unittest
 import os
+from deepdiff import DeepDiff
 from urllib import request
 
 
@@ -10,18 +11,13 @@ class BaseTestCase(unittest.TestCase):
     def pipeline_file(self):
         pass
 
-    def assertSourceEqual(self, source, value, nested_key):
-        keys = nested_key.split('.')
+    def assertSourceEquals(self, source, expected_source):
+        diff = DeepDiff(source, expected_source)
 
-        for key in keys:
-            self.assertIn(key, source)
+        if(diff != {}):
+            print(diff.pretty())
 
-            source = source[key]
-
-        self.assertEqual(value, source)
-
-    def assertSourceHasNoError(self, source):
-        self.assertNotIn('error', source)
+        self.assertEqual(diff, {})
 
     def read_pipeline_file(self):
         with open(self.pipeline_file, 'r') as file:

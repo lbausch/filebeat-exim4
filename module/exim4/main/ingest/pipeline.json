@@ -1,6 +1,164 @@
 {
   "description": "Pipeline for parsing Exim 4 main logs",
   "processors": [
+    {
+      "grok": {
+        "field": "message",
+        "patterns": [
+          "%{EXIM4_RECEPTION_LOG_LINE}",
+          "%{EXIM4_DELIVERY_LOG_LINE}"
+        ],
+        "pattern_definitions": {
+          "EXIM4_RECEPTION_LOG_LINE": "^%{EXIM4_DATETIME_TIMEZONE} %{EXIM4_ID:exim4.id} %{EXIM4_FLAG_RECEPTION:exim4.flag} %{SPACE}%{NOTSPACE:exim4.envelope_sender} (%{SPACE}%{EXIM4_RECEPTION_FIELDS})*",
+          "EXIM4_DELIVERY_LOG_LINE": "^%{EXIM4_DATETIME_TIMEZONE} %{EXIM4_ID:exim4.id} %{EXIM4_FLAGS_DELIVERY:exim4.flag} %{SPACE}%{EXIM4_DELIVERY_ADDRESS} (%{SPACE}%{EXIM4_DELIVERY_FIELDS})*",
+
+          "EXIM4_DATETIME_TIMEZONE": "%{EXIM4_DATETIME:exim4.datetime}( %{EXIM4_TIMEZONE:exim4.timezone})?",
+          "EXIM4_DATETIME": "%{YEAR}-%{MONTHNUM}-%{MONTHDAY} %{HOUR}:%{MINUTE}:%{SECOND}",
+          "EXIM4_TIMEZONE": "[+-]\\d{4}",
+
+          "EXIM4_ID": "[0-9a-zA-Z]{6}-[0-9a-zA-Z]{6}-[0-9a-zA-Z]{2}",
+
+          "EXIM4_FLAG_RECEPTION": "<=",
+          "EXIM4_FLAGS_DELIVERY": "=>|->|>>|==|\\*\\*",
+
+          "EXIM4_DELIVERY_ADDRESS": "%{EXIM4_FINAL_ADDRESS}(%{SPACE}%{EXIM4_INTERMEDIATE_ADDRESS})?(%{SPACE}%{EXIM4_ORIGINAL_ADDRESS})?(%{SPACE}%{EXIM4_ORIGINAL_ADDRESS_MALFORMED})?",
+          "EXIM4_FINAL_ADDRESS": "%{NOTSPACE:exim4.final_address}",
+          "EXIM4_INTERMEDIATE_ADDRESS": "\\(%{NOTSPACE:exim4.intermediate_address}\\)",
+          "EXIM4_ORIGINAL_ADDRESS": "<%{NOTSPACE:exim4.original_address}>",
+          "EXIM4_ORIGINAL_ADDRESS_MALFORMED": "<%{GREEDYDATA:exim4.original_address_malformed}>",
+
+          "EXIM4_RECEPTION_FIELDS": "%{EXIM4_REMOTEHOST}|%{EXIM4_LOCAL_USER}|%{EXIM4_BOUNCE_REF}|%{EXIM4_PROTO}|%{EXIM4_MESSAGE_SIZE}|%{EXIM4_TLS_CIPHER_SUITE}|%{EXIM4_CV}|%{EXIM4_SNI}|%{EXIM4_CHUNKING:exim4.chunking}|%{EXIM4_AUTHENTICATOR}|%{EXIM4_DKIM}|%{EXIM4_MESSAGE_ID}|%{EXIM4_SUBJECT}|%{EXIM4_RECEIVED_RECIPIENTS}",
+          "EXIM4_DELIVERY_FIELDS": "%{EXIM4_SENDER_ADDRESS}|%{EXIM4_SRS}|%{EXIM4_ROUTER}|%{EXIM4_TRANSPORT}|%{EXIM4_AUTHENTICATOR}|%{EXIM4_SHADOW_TRANSPORT}|%{EXIM4_REMOTEHOST}|%{EXIM4_TLS_CIPHER_SUITE}|%{EXIM4_CV}|%{EXIM4_CHUNKING:exim4.chunking}|%{EXIM4_DISTINGUISHED_NAME}|%{EXIM4_SMTP_CONFIRMATION}",
+
+          "EXIM4_REMOTEHOST": "H=\\(?\\[?%{IPORHOST:exim4.remote_host}?\\]?\\)?(%{SPACE}\\(\\[?%{IPORHOST:exim4.helo_name}\\]?\\))? \\[%{IP:exim4.remote_addr}\\](:%{POSINT:exim4.remote_addr_port})?",
+          "EXIM4_LOCAL_USER": "U=%{USERNAME:exim4.local_user}",
+          "EXIM4_BOUNCE_REF": "R=%{NOTSPACE:exim4.bounce_ref}",
+          "EXIM4_PROTO": "P=%{NOTSPACE:exim4.protocol}",
+          "EXIM4_MESSAGE_SIZE": "S=%{POSINT:exim4.message_size}",
+          "EXIM4_TLS_CIPHER_SUITE": "X=%{NOTSPACE:exim4.tls.cipher_suite}",
+          "EXIM4_CV": "CV=%{WORD:exim4.tls.cert_verification_status}",
+          "EXIM4_SNI": "SNI=%{QUOTEDSTRING:exim4.tls.server_name_ident}",
+          "EXIM4_CHUNKING": "K",
+          "EXIM4_AUTHENTICATOR": "A=%{NOTSPACE:exim4.authenticator}",
+          "EXIM4_DKIM": "DKIM=%{NOTSPACE:exim4.dkim}",
+          "EXIM4_MESSAGE_ID": "id=%{NOTSPACE:exim4.message_id}",
+          "EXIM4_SUBJECT": "T=%{QUOTEDSTRING:exim4.subject}",
+          "EXIM4_RECEIVED_RECIPIENTS": "%{SPACE}?for %{GREEDYDATA:exim4.received_recipients}",
+
+          "EXIM4_SENDER_ADDRESS": "F=%{NOTSPACE:exim4.sender_address}",
+          "EXIM4_SRS": "SRS=<%{NOTSPACE:exim4.srs}>",
+          "EXIM4_ROUTER": "R=%{NOTSPACE:exim4.router}",
+          "EXIM4_TRANSPORT": "T=%{NOTSPACE:exim4.transport}",
+          "EXIM4_SHADOW_TRANSPORT": "ST=%{NOTSPACE:exim4.shadow_transport}(%{SPACE}\\(%{DATA:exim4.shadow_transport_error}\\))?",
+          "EXIM4_DISTINGUISHED_NAME": "DN=%{QUOTEDSTRING:exim4.distinguished_name}",
+          "EXIM4_SMTP_CONFIRMATION": "C=%{QUOTEDSTRING:exim4.smtp_confirmation}"
+        }
+      }
+    },
+    {
+      "split": {
+        "field": "exim4.received_recipients",
+        "separator": " ",
+        "ignore_missing": true
+      }
+    },
+    {
+      "gsub": {
+        "field": "exim4.subject",
+        "pattern": "^\"",
+        "replacement": "",
+        "ignore_missing": true
+      }
+    },
+    {
+      "gsub": {
+        "field": "exim4.subject",
+        "pattern": "\"$",
+        "replacement": "",
+        "ignore_missing": true
+      }
+    },
+    {
+      "gsub": {
+        "field": "exim4.smtp_confirmation",
+        "pattern": "^\"",
+        "replacement": "",
+        "ignore_missing": true
+      }
+    },
+    {
+      "gsub": {
+        "field": "exim4.smtp_confirmation",
+        "pattern": "\"$",
+        "replacement": "",
+        "ignore_missing": true
+      }
+    },
+    {
+      "gsub": {
+        "field": "exim4.distinguished_name",
+        "pattern": "^\"",
+        "replacement": "",
+        "ignore_missing": true
+      }
+    },
+    {
+      "gsub": {
+        "field": "exim4.distinguished_name",
+        "pattern": "\"$",
+        "replacement": "",
+        "ignore_missing": true
+      }
+    },
+    {
+      "gsub": {
+        "field": "exim4.sender_address",
+        "pattern": "^<",
+        "replacement": "",
+        "ignore_missing": true
+      }
+    },
+    {
+      "gsub": {
+        "field": "exim4.sender_address",
+        "pattern": ">$",
+        "replacement": "",
+        "ignore_missing": true
+      }
+    },
+    {
+      "rename": {
+        "field": "message",
+        "target_field": "exim4.message_raw"
+      }
+    },
+    {
+      "set": {
+        "field": "exim4.timezone",
+        "value": "UTC",
+        "override": false
+      }
+    },
+    {
+      "date": {
+        "field": "exim4.datetime",
+        "target_field": "@timestamp",
+        "timezone": "{{ exim4.timezone }}",
+        "formats": [
+          "uuuu-MM-dd HH:mm:ss"
+        ]
+      }
+    },
+    {
+      "remove": {
+        "field": "exim4.datetime"
+      }
+    },
+    {
+      "remove": {
+        "field": "exim4.timezone"
+      }
+    }
   ],
   "on_failure" : [{
     "set" : {
