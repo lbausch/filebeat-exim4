@@ -19,19 +19,6 @@ class BaseTestCase(unittest.TestCase):
 
         self.assertEqual(diff, {})
 
-    def assertSourceEqual(self, source, value, nested_key):
-        keys = nested_key.split('.')
-
-        for key in keys:
-            self.assertIn(key, source)
-
-            source = source[key]
-
-        self.assertEqual(value, source)
-
-    def assertSourceHasNoError(self, source):
-        self.assertNotIn('error', source)
-
     def read_pipeline_file(self):
         with open(self.pipeline_file, 'r') as file:
             pipeline_raw = file.read()
