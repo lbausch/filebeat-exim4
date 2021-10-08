@@ -14,7 +14,7 @@ class BaseTestCase(unittest.TestCase):
     def assertSourceEquals(self, source, expected_source):
         diff = DeepDiff(source, expected_source)
 
-        if(diff != {}):
+        if diff != {}:
             print(diff.pretty())
 
         self.assertEqual(diff, {})
