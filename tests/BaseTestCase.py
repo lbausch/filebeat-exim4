@@ -1,8 +1,8 @@
 import json
 import unittest
 import os
-from deepdiff import DeepDiff
 from urllib import request
+from deepdiff import DeepDiff
 
 
 class BaseTestCase(unittest.TestCase):
