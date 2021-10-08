@@ -49,4 +49,6 @@ jobs:
 
       - name: Run Unit Tests
         working-directory: tests
-        run: python RejectPipeline.py --failfast --verbose
+        run: |
+          python MainPipeline.py --failfast --verbose
+          python RejectPipeline.py --failfast --verbose
