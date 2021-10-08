@@ -20,6 +20,9 @@ class BaseTestCase(unittest.TestCase):
 
         self.assertEqual(value, source)
 
+    def assertSourceHasNoError(self, source):
+        self.assertNotIn('error', source)
+
     def read_pipeline_file(self):
         with open(self.pipeline_file, 'r') as file:
             pipeline_raw = file.read()

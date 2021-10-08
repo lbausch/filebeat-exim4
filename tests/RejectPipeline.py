@@ -13,6 +13,7 @@ class RejectPipeline(BaseTestCase.BaseTestCase):
         source = self.source(response)
 
         self.assertSourceEqual(source, message, 'message')
+        self.assertSourceEqual(source, 'Provided Grok expressions do not match field value: [foo]', 'error.message')
 
     def test_greylisting(self):
         message = "2021-05-04 13:37:00 +0100 H=mail.remotehost.tld [123.123.123.123]:1337 X=TLSv1.2:ECDHE-RSA-AES128-GCM-SHA256:128 CV=no F=<mail@sender.tld> temporarily rejected RCPT <mail@recipient.tld>: Deferred due to greylisting. Host: '123.123.123.123' From: 'mail@sender.tld' To: 'mail@recipient.tld' SPF: 'none'"
@@ -21,6 +22,7 @@ class RejectPipeline(BaseTestCase.BaseTestCase):
 
         source = self.source(response)
 
+        self.assertSourceHasNoError(source)
         self.assertSourceEqual(source, message, 'exim4.message_raw')
         self.assertSourceEqual(source, '2021-05-04T13:37:00.000+01:00', '@timestamp')
         self.assertSourceEqual(source, 'mail.remotehost.tld', 'exim4.remote_host')
@@ -39,6 +41,7 @@ class RejectPipeline(BaseTestCase.BaseTestCase):
 
         source = self.source(response)
 
+        self.assertSourceHasNoError(source)
         self.assertSourceEqual(source, message, 'exim4.message_raw')
         self.assertSourceEqual(source, '2021-05-04T13:37:00.000+01:00', '@timestamp')
         self.assertSourceEqual(source, 'mail.remotehost.tld', 'exim4.remote_host')
@@ -55,6 +58,7 @@ class RejectPipeline(BaseTestCase.BaseTestCase):
 
         source = self.source(response)
 
+        self.assertSourceHasNoError(source)
         self.assertSourceEqual(source, message, 'exim4.message_raw')
         self.assertSourceEqual(source, '2021-05-04T13:37:00.000+01:00', '@timestamp')
         self.assertSourceEqual(source, 'mail.remotehost.tld', 'exim4.remote_host')
@@ -71,6 +75,7 @@ class RejectPipeline(BaseTestCase.BaseTestCase):
 
         source = self.source(response)
 
+        self.assertSourceHasNoError(source)
         self.assertSourceEqual(source, message, 'exim4.message_raw')
         self.assertSourceEqual(source, '2021-05-04T13:37:00.000+01:00', '@timestamp')
         self.assertSourceEqual(source, 'mail.remotehost.tld', 'exim4.remote_host')
@@ -87,6 +92,7 @@ class RejectPipeline(BaseTestCase.BaseTestCase):
 
         source = self.source(response)
 
+        self.assertSourceHasNoError(source)
         self.assertSourceEqual(source, message, 'exim4.message_raw')
         self.assertSourceEqual(source, '2021-05-04T13:37:00.000+01:00', '@timestamp')
         self.assertSourceEqual(source, 'mail.remotehost.tld', 'exim4.remote_host')
@@ -103,6 +109,7 @@ class RejectPipeline(BaseTestCase.BaseTestCase):
 
         source = self.source(response)
 
+        self.assertSourceHasNoError(source)
         self.assertSourceEqual(source, message, 'exim4.message_raw')
         self.assertSourceEqual(source, '2021-05-04T13:37:00.000+01:00', '@timestamp')
         self.assertSourceEqual(source, 'mail.remotehost.tld', 'exim4.remote_host')
@@ -119,6 +126,7 @@ class RejectPipeline(BaseTestCase.BaseTestCase):
 
         source = self.source(response)
 
+        self.assertSourceHasNoError(source)
         self.assertSourceEqual(source, message, 'exim4.message_raw')
         self.assertSourceEqual(source, '2021-05-04T13:37:00.000+01:00', '@timestamp')
         self.assertSourceEqual(source, 'SMTP call from (mail.remotehost.tld) [123.123.123.123]:1337 dropped: too many syntax or protocol errors (last command was "RCPT TO: <\'mail@recipient.tld\'>",  C=EHLO,AUTH,MAIL,RCPT,RCPT,RCPT,RCPT,RCPT,RCPT)', 'exim4.message')
