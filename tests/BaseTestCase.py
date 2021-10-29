@@ -1,8 +1,8 @@
 import json
 import unittest
 import os
-from deepdiff import DeepDiff
 from urllib import request
+from deepdiff import DeepDiff
 
 
 class BaseTestCase(unittest.TestCase):
@@ -11,15 +11,15 @@ class BaseTestCase(unittest.TestCase):
     def pipeline_file(self):
         pass
 
-    def assertSourceEquals(self, source, expected_source):
+    def assertSourceEquals(self, source: dict, expected_source: dict):
         diff = DeepDiff(source, expected_source)
 
-        if(diff != {}):
+        if diff != {}:
             print(diff.pretty())
 
         self.assertEqual(diff, {})
 
-    def read_pipeline_file(self):
+    def read_pipeline_file(self) -> dict:
         with open(self.pipeline_file, 'r') as file:
             pipeline_raw = file.read()
 
@@ -27,7 +27,7 @@ class BaseTestCase(unittest.TestCase):
 
         return pipeline
 
-    def request(self, message):
+    def request(self, message: str) -> str:
         pipeline = self.read_pipeline_file()
 
         body = {
@@ -62,7 +62,7 @@ class BaseTestCase(unittest.TestCase):
 
         return response
 
-    def source(self, response):
+    def source(self, response: str) -> dict:
         data = json.loads(response)
 
         self.assertIn('docs', data)

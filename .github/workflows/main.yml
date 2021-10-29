@@ -8,6 +8,39 @@ on:
     - cron: '0 9 * * *'
 
 jobs:
+  config:
+    strategy:
+      fail-fast: true
+      matrix:
+        version:
+          - 7.7.1
+          - 7.8.1
+          - 7.9.3
+          - 7.10.2
+          - 7.11.2
+          - 7.12.1
+          - 7.13.2
+          - 7.14.2
+          - 7.15.1
+
+    runs-on: ubuntu-latest
+    container:
+      image: docker.elastic.co/beats/filebeat:${{ matrix.version }}
+      options: --user root --entrypoint /bin/bash
+
+    steps:
+      - name: Check Out Repository Code
+        uses: actions/checkout@v2
+
+      - name: Validate Configuration
+        run: |
+          cp -v modules.d/exim4.yml.disabled /usr/share/filebeat/modules.d/exim4.yml
+          cp -Rv module/exim4 /usr/share/filebeat/module
+          cd /usr/share/filebeat
+          filebeat test config
+          filebeat modules list | grep -A 1 'Enabled:' | grep exim4
+          filebeat run -v --once
+
   tests:
     env:
       ES_HOST: http://elasticsearch:9200
@@ -24,7 +57,7 @@ jobs:
           - 7.12.1
           - 7.13.2
           - 7.14.2
-          - 7.15.0
+          - 7.15.1
 
     runs-on: ubuntu-latest
     container: python:3.10-bullseye

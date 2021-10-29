@@ -228,7 +228,6 @@ class MainPipeline(BaseTestCase.BaseTestCase):
                 'authenticator': 'fixed_cram:foo',
                 'dkim': 'remotehost.tld',
                 'message_size': '10258521',
-                'chunking': 'K',
             },
         })
 
