@@ -81,8 +81,12 @@ jobs:
         ports:
           - 9200:9200
         env:
+          # Disable security auto configuration for 8.x
+          # https://www.elastic.co/guide/en/elasticsearch/reference/8.0/configuring-stack-security.html#stack-existing-settings-detected
+          xpack.security.enabled: false
+          # Run a single node cluster
           discovery.type: single-node
-        options: --health-cmd "nc localhost 9200" --health-interval 10s --health-timeout 5s --health-retries 5
+        options: --health-cmd "curl http://localhost:9200/_cluster/health" --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
       - name: Check Cluster Status
