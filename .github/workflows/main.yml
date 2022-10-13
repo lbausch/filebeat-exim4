@@ -102,6 +102,6 @@ jobs:
       - name: Run Unit Tests
         working-directory: tests
         run: |
-          pip3 install deepdiff
+          pip3 install deepdiff==5.8.1
           python MainPipeline.py --failfast --verbose
           python RejectPipeline.py --failfast --verbose
