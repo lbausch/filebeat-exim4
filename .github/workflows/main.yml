@@ -38,7 +38,7 @@ jobs:
 
     steps:
       - name: Check Out Repository Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Validate Configuration
         run: |
@@ -97,7 +97,7 @@ jobs:
           curl --silent ${{ env.ES_HOST }}/_cat/health
 
       - name: Check Out Repository Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Run Unit Tests
         working-directory: tests
