@@ -2,10 +2,11 @@
 name: Tests
 
 on:
-  push:
-  pull_request:
+  push: {}
+  pull_request: {}
   schedule:
     - cron: '0 9 * * *'
+  workflow_dispatch: {}
 
 jobs:
   config:
@@ -23,11 +24,12 @@ jobs:
           - 7.14.2
           - 7.15.2
           - 7.16.3
-          - 7.17.5
+          - 7.17.6
           - 8.0.1
           - 8.1.3
           - 8.2.3
-          - 8.3.2
+          - 8.3.3
+          - 8.4.3
 
     runs-on: ubuntu-latest
     container:
@@ -36,7 +38,7 @@ jobs:
 
     steps:
       - name: Check Out Repository Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Validate Configuration
         run: |
@@ -65,12 +67,12 @@ jobs:
           - 7.14.2
           - 7.15.2
           - 7.16.3
-          - 7.17.5
+          - 7.17.6
           - 8.0.1
           - 8.1.3
           - 8.2.3
-          - 8.3.2
-
+          - 8.3.3
+          - 8.4.3
 
     runs-on: ubuntu-latest
     container: python:3.10-bullseye
@@ -95,11 +97,11 @@ jobs:
           curl --silent ${{ env.ES_HOST }}/_cat/health
 
       - name: Check Out Repository Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Run Unit Tests
         working-directory: tests
         run: |
-          pip3 install deepdiff
+          pip3 install deepdiff==5.8.1
           python MainPipeline.py --failfast --verbose
           python RejectPipeline.py --failfast --verbose
