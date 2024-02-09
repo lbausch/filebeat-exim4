@@ -1,9 +1,10 @@
-type: log
+type: filestream
+id: exim4-rejectlog
 paths:
 {{ range $i, $path := .paths }}
  - {{$path}}
 {{ end }}
-exclude_files: [".gz$"]
+prospector.scanner.exclude_files: ['\.gz$']
 
 # https://www.elastic.co/guide/en/beats/filebeat/7.x/filebeat-input-log.html#filebeat-input-log-include-lines
 include_lines:
