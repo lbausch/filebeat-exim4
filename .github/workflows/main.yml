@@ -14,8 +14,8 @@ jobs:
       fail-fast: true
       matrix:
         version:
-          - 7.17.18
-          - 8.12.1
+          - 7.17.21
+          - 8.13.4
 
     runs-on: ubuntu-latest
     container:
@@ -43,8 +43,8 @@ jobs:
       fail-fast: true
       matrix:
         version:
-          - 7.17.18
-          - 8.12.1
+          - 7.17.21
+          - 8.13.4
 
     runs-on: ubuntu-latest
     container: python:3.12-bookworm
