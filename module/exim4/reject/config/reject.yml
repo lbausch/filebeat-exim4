@@ -1,13 +1,14 @@
-type: log
+type: filestream
+id: exim4-rejectlog
 paths:
 {{ range $i, $path := .paths }}
  - {{$path}}
 {{ end }}
-exclude_files: [".gz$"]
+prospector.scanner.exclude_files: ['\.gz$']
 
 # https://www.elastic.co/guide/en/beats/filebeat/7.x/filebeat-input-log.html#filebeat-input-log-include-lines
 include_lines:
   # Matches lines beginning with date and time followed by an optional timezone offset and an optional Exim message ID, e.g:
   # 1970-01-01 13:37:00 +0100 aBc123-dEF456-H7
   # https://www.exim.org/exim-html-current/doc/html/spec_html/ch-how_exim_receives_and_delivers_mail.html#SECTmessiden
-  - '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}( [+-]\d{4})?( [0-9a-zA-Z]{6}-[0-9a-zA-Z]{6}-[0-9a-zA-Z]{2})?'
+  - '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}( [+-]\d{4})?( [0-9a-zA-Z]{6}-[0-9a-zA-Z]{6,11}-[0-9a-zA-Z]{2,4})?'

@@ -18,6 +18,33 @@ class MainPipeline(BaseTestCase.BaseTestCase):
             }
         })
 
+    def test_exim497_message_id_format(self):
+        message = '2024-06-02 05:54:33 +0200 1sDcIh-000000004YY-3wAT => mail@example.com F=<sender@example.com> R=dnslookup T=remote_smtp H=example.com [127.0.0.1] X=TLS1.2:ECDHE-RSA-AES128-GCM-SHA256:128 CV=no DN="/CN=*.example.com" C="250 OK id=1sDcIj-00BWdE-0W"'
+
+        response = self.request(message)
+        source = self.source(response)
+
+        self.assertSourceEquals(source, {
+            '@timestamp': '2024-06-02T05:54:33.000+02:00',
+            'exim4': {
+                'message_raw': message,
+                'id': '1sDcIh-000000004YY-3wAT',
+                'flag': '=>',
+                'final_address': 'mail@example.com',
+                'sender_address': 'sender@example.com',
+                'router': 'dnslookup',
+                'transport': 'remote_smtp',
+                'remote_host': 'example.com',
+                'remote_addr': '127.0.0.1',
+                'tls': {
+                    'cert_verification_status': 'no',
+                    'cipher_suite': 'TLS1.2:ECDHE-RSA-AES128-GCM-SHA256:128'
+                },
+                'distinguished_name': '/CN=*.example.com',
+                'smtp_confirmation': '250 OK id=1sDcIj-00BWdE-0W',
+            },
+        })
+
     def test_local_user(self):
         message = '2021-05-04 13:37:00 +0100 1fnm7Z-00DoYa-KK <= localuser@host.tld U=localuser P=local S=1512 T="Cron <localuser@host> /usr/bin/wget http://foo.tld --output-document=/h" for recipient@remotehost.tld'
 
