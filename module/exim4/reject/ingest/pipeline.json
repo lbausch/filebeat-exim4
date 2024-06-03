@@ -14,7 +14,7 @@
           "EXIM4_DATETIME": "%{YEAR}-%{MONTHNUM}-%{MONTHDAY} %{HOUR}:%{MINUTE}:%{SECOND}",
           "EXIM4_TIMEZONE": "[+-]\\d{4}",
 
-          "EXIM4_ID": "[0-9a-zA-Z]{6}-[0-9a-zA-Z]{6}-[0-9a-zA-Z]{2}",
+          "EXIM4_ID": "[0-9a-zA-Z]{6}-[0-9a-zA-Z]{6,11}-[0-9a-zA-Z]{2,4}",
 
           "EXIM4_REJECT_FIELD": "%{EXIM4_REMOTEHOST}|%{EXIM4_SENDER_ADDRESS}|%{EXIM4_TLS_CIPHER_SUITE}|%{EXIM4_CV}",
 

@@ -18,6 +18,28 @@ class RejectPipeline(BaseTestCase.BaseTestCase):
             }
         })
 
+    def test_exim497_message_id_format(self):
+        message = '2024-06-02 05:50:20 +0200 1sDcEe-000000004BC-0oYZ H=example.com [127.0.0.1] X=TLS1.2:ECDHE-RSA-AES256-GCM-SHA384:256 CV=no F=<sender@example.com> A=fixed_cram:foo rejected after DATA: spam'
+
+        response = self.request(message)
+        source = self.source(response)
+
+        self.assertSourceEquals(source, {
+            '@timestamp': '2024-06-02T05:50:20.000+02:00',
+            'exim4': {
+                'message_raw': message,
+                'id': '1sDcEe-000000004BC-0oYZ',
+                'remote_host': 'example.com',
+                'remote_addr': '127.0.0.1',
+                'tls': {
+                    'cert_verification_status': 'no',
+                    'cipher_suite': 'TLS1.2:ECDHE-RSA-AES256-GCM-SHA384:256'
+                },
+                'sender_address': 'sender@example.com',
+                'message': 'A=fixed_cram:foo rejected after DATA: spam',
+            },
+        })
+
     def test_greylisting(self):
         message = "2021-05-04 13:37:00 +0100 H=mail.remotehost.tld [123.123.123.123]:1337 X=TLSv1.2:ECDHE-RSA-AES128-GCM-SHA256:128 CV=no F=<mail@sender.tld> temporarily rejected RCPT <mail@recipient.tld>: Deferred due to greylisting. Host: '123.123.123.123' From: 'mail@sender.tld' To: 'mail@recipient.tld' SPF: 'none'"
 
