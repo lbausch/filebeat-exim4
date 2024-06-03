@@ -36,7 +36,8 @@ class RejectPipeline(BaseTestCase.BaseTestCase):
                     'cipher_suite': 'TLS1.2:ECDHE-RSA-AES256-GCM-SHA384:256'
                 },
                 'sender_address': 'sender@example.com',
-                'message': 'A=fixed_cram:foo rejected after DATA: spam',
+                'authenticator':  'fixed_cram:foo',
+                'message': 'rejected after DATA: spam',
             },
         })
 
