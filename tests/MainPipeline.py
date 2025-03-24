@@ -440,6 +440,33 @@ class MainPipeline(BaseTestCase.BaseTestCase):
             },
         })
 
+    def test_tcp_fast_open(self):
+        message = '2025-03-21 09:14:34 +0100 1tvXWP-009NZS-3B => sender@somehost.tld F=<sender@somehost.tld> R=dnslookup T=remote_smtp H=remotehost.tld [123.123.123.123] TFO X=TLS1.2:RSA__AES_256_GCM:256 CV=no DN="CN=mail.host.tld" C="250 2.0.0 Ok: queued as 3B/26-10141-8EF1DD76'
+
+        response = self.request(message)
+        source = self.source(response)
+
+        self.assertSourceEquals(source, {
+            '@timestamp': '2025-03-21T09:14:34.000+01:00',
+            'exim4': {
+                'message_raw': message,
+                'id': '1tvXWP-009NZS-3B',
+                'flag': '=>',
+                'transport': 'remote_smtp',
+                'tcp_fast_open': 'TFO',
+                'sender_address': 'sender@somehost.tld',
+                'remote_host': 'remotehost.tld',
+                'remote_addr': '123.123.123.123',
+                'router': 'dnslookup',
+                'distinguished_name': 'CN=mail.host.tld',
+                'tls': {
+                    'cipher_suite': 'TLS1.2:RSA__AES_256_GCM:256',
+                    'cert_verification_status': 'no',
+                },
+                'final_address': 'sender@somehost.tld',
+            },
+        })
+
 
 if __name__ == '__main__':
     unittest.main()
